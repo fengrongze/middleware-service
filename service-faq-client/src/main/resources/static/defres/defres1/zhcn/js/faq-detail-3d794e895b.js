@@ -1,0 +1,1 @@
+$(function(){console.log("faq-detail.ts")});

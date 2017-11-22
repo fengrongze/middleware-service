@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.softisland.middleware.domain.mapper.FaqAnswerMapper">
+
+    <select id="queryAnswerList" parameterType="java.util.HashMap"  resultType="com.softisland.middleware.domain.bean.view.AnswerView">
+        SELECT
+        m.id,
+        m.catalog_id AS cid,
+        t.word_content as title
+        FROM
+        faq_answer m,
+        sys_dictionary t
+        WHERE
+        m.title_key = t.word_key
+        AND t.site_id = #{siteId,jdbcType=INTEGER}
+        AND t.language_code=#{language,jdbcType=VARCHAR}
+
+        and  m.status=#{status,jdbcType=SMALLINT}
+        <if test="cid !=null and cid !=''">
+            and m.catalog_id=#{cid,jdbcType=INTEGER}
+        </if>
+
+        <if test="titleKey !=null and titleKey !=''">
+            and t.word_content like CONCAT('%',#{titleKey,jdbcType=VARCHAR},'%')
+        </if>
+
+
+    </select>
+
+
+
+    <select id="queryAnswerView" parameterType="java.util.HashMap"  resultType="com.softisland.middleware.domain.bean.view.AnswerView">
+        SELECT
+        t.id,
+        t.catalog_id AS cid,
+        (
+        SELECT
+        k.word_content
+        FROM
+        sys_dictionary k
+        WHERE
+        k.word_key = t.title_key
+        AND k.site_id = #{siteId,jdbcType=INTEGER}
+        AND k.language_code = #{language,jdbcType=VARCHAR}
+        ) AS title,
+        (
+        SELECT
+        a.word_content
+        FROM
+        sys_dictionary a
+        WHERE
+        a.word_key = t.content_key
+        AND a.site_id = #{siteId,jdbcType=INTEGER}
+        AND a.language_code = #{language,jdbcType=VARCHAR}
+        ) AS content
+        FROM
+        faq_answer t
+        where t.id=#{id,jdbcType=INTEGER}
+    </select>
+
+
+    <select id="queryBackgroundAnswerList" parameterType="java.util.HashMap"  resultType="com.softisland.middleware.domain.bean.query.AnswerQueryItem">
+        SELECT
+            a.id,
+            a.catalog_id AS cid,
+            (
+                SELECT
+                    f.word_content
+                FROM
+                    sys_dictionary f
+                WHERE
+                    f.word_key = b.word_key
+                AND f.service_id = m.service_id
+                AND f.language_code = c.language_code
+                AND f.site_id = b.site_id
+            ) as catalog,
+            a. STATUS,
+            (
+                SELECT
+                    t.word_content
+                FROM
+                    sys_dictionary t
+                WHERE
+                    t.site_id = b.site_id
+                AND t.language_code = c.language_code
+                AND t.service_id = m.service_id
+                AND t.word_key = a.title_key
+            ) AS title
+        FROM
+            faq_answer a,
+            faq_catalog b,
+            sys_site_language c,
+            sys_site_service m,
+            sys_service k
+        WHERE
+            a.catalog_id = b.id
+        AND b.site_id = c.site_id
+        AND b.site_id = m.site_id
+        AND m.service_id = k.id
+        AND k.service_name = 'SERVICE-FAQ'
+        AND c.`status` in(0,1)
+        <if test="languageCode !=null and languageCode !=''">
+            and c.language_code=#{languageCode,jdbcType=VARCHAR}
+        </if>
+
+        <if test="siteId !=null">
+            and b.site_id=#{siteId,jdbcType=INTEGER}
+        </if>
+    </select>
+</mapper>

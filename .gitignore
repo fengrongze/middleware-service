@@ -1,0 +1,9 @@
+.idea/*
+*.class
+*.iml
+*.idea
+service-faq-client/target/
+middleware-domain/target/
+middleware-background/target/
+.project
+/target/

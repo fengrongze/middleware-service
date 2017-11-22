@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.softisland.middleware.domain.mapper.SysSiteServiceMapper">
+    <resultMap id="ResultMapSiteService" type="com.softisland.middleware.domain.pojo.SiteServiceInfo">
+        <result column="siteId" property="siteId" jdbcType="INTEGER" />
+        <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+        <result column="serviceId" property="serviceId" jdbcType="INTEGER" />
+        <result column="service_name" property="serviceName" jdbcType="VARCHAR" />
+        <result column="service_domain" property="serviceDomain" jdbcType="VARCHAR" />
+        <result column="service_descprtion" property="serviceDes" jdbcType="VARCHAR" />
+        <result column="expire_date" property="expireDate" jdbcType="VARCHAR" />
+        <result column="update" property="updated" jdbcType="VARCHAR" />
+    </resultMap>
+
+
+    <resultMap id="BaseResultMap" type="com.softisland.middleware.domain.bean.db.SysSiteService">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="site_id" jdbcType="INTEGER" property="siteId" />
+        <result column="service_id" jdbcType="INTEGER" property="serviceId" />
+        <result column="service_domain" jdbcType="VARCHAR" property="serviceDomain" />
+        <result column="start_date" jdbcType="TIMESTAMP" property="startDate" />
+        <result column="time_limit" jdbcType="INTEGER" property="timeLimit" />
+        <result column="status" jdbcType="SMALLINT" property="status" />
+        <result column="created" jdbcType="TIMESTAMP" property="created" />
+        <result column="updated" jdbcType="TIMESTAMP" property="updated" />
+    </resultMap>
+
+    <select id="querySiteServiceByServiceDomain" parameterType="java.util.HashMap"  resultMap="BaseResultMap">
+        SELECT
+            m.*
+        FROM
+            sys_site_service m
+        JOIN sys_service k ON m.service_id = k.id
+        WHERE
+            m.service_domain = #{domain,jdbcType=VARCHAR}
+        AND k.service_name = #{serviceName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getSiteService" resultMap="ResultMapSiteService" parameterType="java.lang.Integer" >
+        select a.id as siteId,a.site_name,b.service_domain,DATE_ADD(b.start_date,INTERVAL b.time_limit DAY) as expire_date,c.id as serviceId,c.service_name,c.service_descprtion,c.update from sys_site a
+        join sys_site_service b on a.id=b.site_id
+        join sys_service c on b.service_id=c.id
+        where a.id=#{id,jdbcType=INTEGER}
+    </select>
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.softisland.middleware.domain.mapper.SysSiteLanguageMapper">
+    <select id="querySiteLanguageList" parameterType="java.util.HashMap"  resultType="com.softisland.middleware.domain.bean.view.LanguageView">
+        SELECT
+            m.`code`,
+            m.`name`,
+            m.national_img AS imgUrl,
+          t.default_flag as defaultFlag
+        FROM
+            sys_site_language t,
+            sys_language m
+        WHERE
+            t.language_code = m.`code`
+        AND t.site_id = #{siteId,jdbcType=INTEGER}
+        ORDER BY default_flag desc
+
+    </select>
+</mapper>

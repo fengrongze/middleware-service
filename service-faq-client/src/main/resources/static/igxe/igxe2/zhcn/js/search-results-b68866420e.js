@@ -1,0 +1,1 @@
+$(function(){console.log("search-results.ts")});

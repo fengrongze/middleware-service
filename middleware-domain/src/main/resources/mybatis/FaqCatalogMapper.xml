@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.softisland.middleware.domain.mapper.FaqCatalogMapper">
+    <select id="queryTopSiteCatalogListBySite" parameterType="java.util.HashMap"  resultType="com.softisland.middleware.domain.bean.view.CatalogItemView">
+        SELECT
+            t.id,
+            m.word_content as name
+        FROM
+            faq_catalog t
+        JOIN sys_dictionary m ON t.word_key = m.word_key
+        AND m.language_code = #{language,jdbcType=VARCHAR}
+        AND t.site_id = #{siteId,jdbcType=INTEGER}
+        <choose>
+            <when test="superId !=null">
+                AND t.super_id=#{superId,jdbcType=INTEGER}
+            </when>
+            <otherwise>
+                AND t.super_id IS NULL
+            </otherwise>
+
+        </choose>
+
+        ORDER BY
+            t.sort_weight
+
+    </select>
+
+    <select id="queryCatalog" parameterType="java.util.HashMap"  resultType="com.softisland.middleware.domain.bean.view.CatalogItemView">
+        SELECT
+        t.id,
+        t.super_id superId,
+        m.word_content as name
+        FROM
+        faq_catalog t
+        JOIN sys_dictionary m ON t.word_key = m.word_key
+        AND m.language_code = #{language,jdbcType=VARCHAR}
+        AND t.site_id = #{siteId,jdbcType=INTEGER}
+        and t.id=#{id,jdbcType=INTEGER}
+    </select>
+
+
+    <select id="queryBackgroundCatalogList" parameterType="java.util.HashMap"  resultType="com.softisland.middleware.domain.bean.query.CatalogQueryItem">
+        SELECT
+        b.id,
+        b.description,
+        b.`status`,
+        b.super_id as superId,
+        (select t.word_content from sys_dictionary t where t.language_code=c.language_code and t.site_id=c.site_id AND t.word_key=b.word_key) content,
+        c.language_code as languageCode,
+        h.description language,
+        b.type
+        FROM
+        faq_catalog b,
+        sys_site_language c,
+        sys_site_service m,
+        sys_service k,
+        sys_language h
+        WHERE
+        b.site_id = c.site_id
+        AND b.site_id = m.site_id
+        AND m.service_id = k.id
+        and c.language_code=h.`code`
+        AND k.service_name = 'SERVICE-FAQ'
+        <if test ="siteId !=null">
+            AND  b.site_id = #{siteId,jdbcType=INTEGER}
+        </if>
+
+        <if test ="type !=null">
+          AND  b.type = #{type,jdbcType=INTEGER}
+        </if>
+
+        <if test ="id !=null">
+            AND  b.id = #{id,jdbcType=INTEGER}
+        </if>
+        and c.`status`=1
+    </select>
+
+    <select id="queryCatalogItemsList" parameterType="java.util.HashMap"  resultType="com.softisland.middleware.domain.bean.query.CatalogQueryItem">
+        SELECT
+        t.id,
+        t.super_id AS superId,
+        t.type,
+        t.description,
+        (
+        SELECT
+        k.word_content
+        FROM
+        sys_dictionary k
+        WHERE
+        k.language_code = m.language_code
+        AND k.site_id = t.site_id
+        AND k.word_key = t.word_key
+        AND k.service_id= #{serviceId,jdbcType=INTEGER}
+        ) AS content,
+        m.language_code as languageCode,
+        f.`name` as `language`
+        FROM
+        faq_catalog t,
+        sys_site_language m,
+        sys_language f
+        WHERE
+        t.site_id = m.site_id
+        AND m.language_code=f.`code`
+        AND m.`status` = 1
+        <if test ="id !=null">
+            AND  t.id = #{id,jdbcType=INTEGER}
+        </if>
+
+        <if test ="siteId !=null">
+            AND  t.site_id = #{siteId,jdbcType=INTEGER}
+        </if>
+
+        <if test ="languageCode !=null">
+            AND  m.language_code = #{languageCode,jdbcType=VARCHAR}
+        </if>
+
+        <if test ="type !=null">
+            AND  t.type = #{type,jdbcType=INTEGER}
+        </if>
+    </select>
+
+</mapper>

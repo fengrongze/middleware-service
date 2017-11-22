@@ -1,0 +1,7 @@
+server:
+  port: 9936
+
+spring:
+  application:
+    name: SERVICE-FAQ-V1.0
+

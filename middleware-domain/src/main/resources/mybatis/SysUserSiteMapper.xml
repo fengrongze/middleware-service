@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.softisland.middleware.domain.mapper.SysUserSiteMapper">
+
+    <resultMap id="ResultMapUserSite" type="com.softisland.middleware.domain.pojo.UserSiteInfo">
+        <result column="userId" property="userId" jdbcType="INTEGER" />
+        <result column="user_name" property="userName" jdbcType="VARCHAR" />
+        <result column="email" property="userEmail" jdbcType="VARCHAR" />
+        <result column="siteId" property="siteId" jdbcType="INTEGER" />
+        <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+        <result column="site_domain" property="siteDomain" jdbcType="VARCHAR" />
+        <result column="updated" property="updated" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="getUserSite" resultMap="ResultMapUserSite" parameterType="java.lang.Integer" >
+        select a.id as userId,a.user_name,a.email,c.id as siteId,c.site_name,c.site_domain,c.updated
+        from sys_user a
+        join sys_user_site b on a.id=b.user_id
+        join sys_site c on b.site_id=c.id
+        where a.id=#{id,jdbcType=INTEGER}
+    </select>
+</mapper>
